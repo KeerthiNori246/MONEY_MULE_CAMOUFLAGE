@@ -1,0 +1,53 @@
+# =========================
+# Python cache
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+
+# =========================
+# Virtual environments
+# =========================
+venv/
+.env/
+.envrc
+
+# =========================
+# Jupyter / notebook
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# OS junk
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Graph outputs (VERY LARGE)
+# =========================
+graphs/*.gpickle
+graphs/snapshots/*.gpickle
+
+# =========================
+# Raw datasets
+# (optional depending on size)
+# =========================
+data/*.csv
+data/*.xlsx
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# VS Code settings
+# =========================
+.vscode/
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.bak

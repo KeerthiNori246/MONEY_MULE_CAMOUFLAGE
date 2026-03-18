@@ -1,53 +1,25 @@
-# =========================
 # Python cache
-# =========================
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
 
-# =========================
-# Virtual environments
-# =========================
+# Virtual env
 venv/
-.env/
-.envrc
 
-# =========================
-# Jupyter / notebook
-# =========================
-.ipynb_checkpoints/
+# Graph outputs
+graphs/snapshots/*.gpickle
+graphs/baselines/*.gpickle
+graphs/*.gpickle
 
-# =========================
+# SCI results (optional — remove these 2 lines if you want to track results)
+graphs/sci_results/*.csv
+graphs/sci_results/plots/*.png
+
+# Dataset
+data/*.csv
+
 # OS junk
-# =========================
 .DS_Store
 Thumbs.db
 
-# =========================
-# Graph outputs (VERY LARGE)
-# =========================
-graphs/*.gpickle
-graphs/snapshots/*.gpickle
-
-# =========================
-# Raw datasets
-# (optional depending on size)
-# =========================
-data/*.csv
-data/*.xlsx
-
-# =========================
-# Logs
-# =========================
-*.log
-
-# =========================
-# VS Code settings
-# =========================
+# VS Code
 .vscode/
-
-# =========================
-# Temporary files
-# =========================
-*.tmp
-*.bak

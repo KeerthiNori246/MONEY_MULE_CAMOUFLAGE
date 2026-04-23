@@ -1,25 +1,58 @@
-# Python cache
+# Python bytecode / caches
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
 
-# Virtual env
+# Virtual environments
 venv/
+.venv/
+env/
 
-# Graph outputs
-graphs/snapshots/*.gpickle
-graphs/baselines/*.gpickle
-graphs/*.gpickle
-
-# SCI results (optional — remove these 2 lines if you want to track results)
-graphs/sci_results/*.csv
-graphs/sci_results/plots/*.png
-
-# Dataset
-data/*.csv
-
-# OS junk
+# IDE / OS junk
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
-# VS Code
-.vscode/
+# Data files
+data/*.csv
+data/*.parquet
+data/*.json
+
+# Graph outputs
+graphs/*.gpickle
+graphs/*.pkl
+graphs/*.npy
+graphs/*.csv
+
+graphs/baselines/*.gpickle
+graphs/baselines/*.pkl
+graphs/baselines/*.csv
+
+graphs/snapshots/*.gpickle
+graphs/snapshots/*.pkl
+
+graphs/embeddings/*.npy
+graphs/embeddings/**/*.npy
+graphs/embeddings/**/*.pkl
+
+graphs/model/*.pt
+graphs/model/*.pth
+graphs/model/*.pkl
+
+graphs/sci_results/*.csv
+graphs/sci_results/*.png
+graphs/sci_results/plots/*.png
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

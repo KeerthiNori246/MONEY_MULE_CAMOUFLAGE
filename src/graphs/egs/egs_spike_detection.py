@@ -1,7 +1,7 @@
 """
 egs_spike_detection.py
 ----------------------
-Spike analysis and visualization on ΔP and ΔD signals.
+Spike analysis and visualization on ΔP, ΔD, ΔA signals.
 
 Same spike logic as SCI pipeline:
     spike at t if value > μ + k·σ   (k=2.0 default)
@@ -13,9 +13,11 @@ Reads:
 Outputs:
     graphs/egs_results/egs_spike_delta_P.png
     graphs/egs_results/egs_spike_delta_D.png
+    graphs/egs_results/egs_spike_delta_A.png
     graphs/egs_results/egs_overlay_delta_P.png
     graphs/egs_results/egs_overlay_delta_D.png
-    graphs/egs_results/egs_components_combined.png
+    graphs/egs_results/egs_overlay_delta_A.png
+    graphs/egs_results/egs_components_combined.png   ← 3-row paper figure
     graphs/egs_results/egs_spike_summary.csv
 """
 
@@ -36,6 +38,7 @@ COLORS = {"benign": "#5B9BD5", "adv": "#E06C75"}
 SIGNAL_LABELS = {
     "delta_P": "ΔP_t (Prototype Movement)",
     "delta_D": "ΔD_t (Dispersion Change)",
+    "delta_A": "ΔA_t (Anisotropy Change)",
 }
 
 
@@ -142,17 +145,17 @@ def plot_overlay(df_benign, df_adv, col, k=2.0):
 
 def plot_combined(df_benign, df_adv, k=2.0):
     """
-    2-row subplot — one row per signal (ΔP, ΔD).
+    3-row subplot — one row per signal (ΔP, ΔD, ΔA).
     Both baselines overlaid in each panel.
-    Main 'EGS Components' figure for the paper.
+    Main EGS components figure for the paper.
     """
-    fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=False)
+    fig, axes = plt.subplots(3, 1, figsize=(12, 11), sharex=False)
     fig.suptitle(
         "EGS Components — Benign vs Adversarial",
         fontsize=13, fontweight="bold"
     )
 
-    for ax, col in zip(axes, ["delta_P", "delta_D"]):
+    for ax, col in zip(axes, ["delta_P", "delta_D", "delta_A"]):
         for mode, df in [("benign", df_benign), ("adv", df_adv)]:
             series = df[col].dropna()
             x      = np.arange(len(series))
@@ -194,13 +197,13 @@ def run_egs_spike_detection(k: float = 2.0):
     df_benign = pd.read_csv(benign_path)
     df_adv    = pd.read_csv(adv_path)
 
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 65)
     print(f"  EGS SPIKE DETECTION  (k={k})")
-    print("=" * 60)
+    print("=" * 65)
 
     summary_rows = []
 
-    for col in ["delta_P", "delta_D"]:
+    for col in ["delta_P", "delta_D", "delta_A"]:
         print(f"\n  ── {col} ──")
         for mode, df in [("benign", df_benign), ("adv", df_adv)]:
             series = df[col].dropna()
@@ -224,10 +227,10 @@ def run_egs_spike_detection(k: float = 2.0):
     summary_df.to_csv(summary_path, index=False)
     print(f"\n  Summary → {summary_path}")
 
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 65)
     print("  DONE")
     print(f"  Plots → {EGS_DIR}")
-    print("=" * 60)
+    print("=" * 65)
 
     return summary_df
 

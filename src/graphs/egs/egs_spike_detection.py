@@ -1,19 +1,22 @@
 """
 egs_spike_detection.py
 ----------------------
-Spike analysis and visualization on ΔP (prototype movement) signal.
+Spike analysis and visualization on ΔP and ΔD signals.
 
 Same spike logic as SCI pipeline:
-    spike at t if delta_P_t > μ + k·σ   (k=2.0 default)
+    spike at t if value > μ + k·σ   (k=2.0 default)
 
 Reads:
     graphs/egs_results/egs_timeseries_benign.csv
     graphs/egs_results/egs_timeseries_adv.csv
 
 Outputs:
-    graphs/egs_results/egs_spike_delta_P.png   — benign/adv stacked
-    graphs/egs_results/egs_overlay_delta_P.png — both overlaid
-    graphs/egs_results/egs_spike_summary.csv   — stats table
+    graphs/egs_results/egs_spike_delta_P.png
+    graphs/egs_results/egs_spike_delta_D.png
+    graphs/egs_results/egs_overlay_delta_P.png
+    graphs/egs_results/egs_overlay_delta_D.png
+    graphs/egs_results/egs_components_combined.png
+    graphs/egs_results/egs_spike_summary.csv
 """
 
 import os
@@ -29,6 +32,11 @@ _PROJECT_ROOT = os.path.abspath(os.path.join(_THIS_DIR, "..", "..", ".."))
 EGS_DIR       = os.path.join(_PROJECT_ROOT, "graphs", "egs_results")
 
 COLORS = {"benign": "#5B9BD5", "adv": "#E06C75"}
+
+SIGNAL_LABELS = {
+    "delta_P": "ΔP_t (Prototype Movement)",
+    "delta_D": "ΔD_t (Dispersion Change)",
+}
 
 
 # ── spike helpers ────────────────────────────────────────────────────────
@@ -58,22 +66,24 @@ def spike_stats(series: pd.Series, k: float = 2.0) -> dict:
 
 # ── plots ────────────────────────────────────────────────────────────────
 
-def plot_stacked(df_benign, df_adv, k=2.0):
+def plot_stacked(df_benign, df_adv, col, k=2.0):
     """Two-panel plot: benign on top, adversarial below."""
     fig, axes = plt.subplots(2, 1, figsize=(12, 7), sharex=False)
-    fig.suptitle(f"EGS — ΔP_t (Prototype Movement)  (k={k})",
-                 fontsize=13, fontweight="bold")
+    fig.suptitle(
+        f"EGS — {SIGNAL_LABELS[col]}  (k={k})",
+        fontsize=13, fontweight="bold"
+    )
 
     for ax, (mode, df) in zip(axes, [("benign", df_benign), ("adv", df_adv)]):
-        series            = df["delta_P"].dropna()
+        series            = df[col].dropna()
         x                 = np.arange(len(series))
         threshold, spikes = detect_spikes(series, k)
         stats             = spike_stats(series, k)
         color             = COLORS[mode]
 
-        ax.plot(x, series.values, color=color, linewidth=1.2, label="delta_P")
+        ax.plot(x, series.values, color=color, linewidth=1.2, label=col)
         ax.axhline(threshold, color="orange", linestyle="--", linewidth=1.0,
-                   label=f"Threshold (μ+{k}σ)={threshold:.5f}")
+                   label=f"Threshold (μ+{k}σ)={threshold:.6f}")
         ax.scatter(x[spikes.values], series.values[spikes.values],
                    color="black", zorder=5, s=40,
                    label=f"Spikes ({stats['spike_count']})")
@@ -84,27 +94,29 @@ def plot_stacked(df_benign, df_adv, k=2.0):
             f"rate={stats['spike_rate']:.1%}]",
             fontsize=10
         )
-        ax.set_ylabel("ΔP_t")
+        ax.set_ylabel(col)
         ax.legend(fontsize=8)
         ax.grid(True, alpha=0.3)
 
     axes[-1].set_xlabel("Time (days)")
     plt.tight_layout()
 
-    out = os.path.join(EGS_DIR, "egs_spike_delta_P.png")
+    out = os.path.join(EGS_DIR, f"egs_spike_{col}.png")
     plt.savefig(out, dpi=150, bbox_inches="tight")
     print(f"  Saved → {out}")
     plt.close()
 
 
-def plot_overlay(df_benign, df_adv, k=2.0):
+def plot_overlay(df_benign, df_adv, col, k=2.0):
     """Single panel with both baselines overlaid."""
     fig, ax = plt.subplots(figsize=(12, 4))
-    fig.suptitle("EGS — ΔP_t — Benign vs Adversarial Overlay",
-                 fontsize=12, fontweight="bold")
+    fig.suptitle(
+        f"EGS — {SIGNAL_LABELS[col]} — Benign vs Adversarial Overlay",
+        fontsize=12, fontweight="bold"
+    )
 
     for mode, df in [("benign", df_benign), ("adv", df_adv)]:
-        series = df["delta_P"].dropna()
+        series = df[col].dropna()
         x      = np.arange(len(series))
         stats  = spike_stats(series, k)
         color  = COLORS[mode]
@@ -114,15 +126,55 @@ def plot_overlay(df_benign, df_adv, k=2.0):
                 alpha=0.85)
         ax.axhline(stats["threshold"], color=color, linestyle=":",
                    linewidth=0.8, alpha=0.6,
-                   label=f"{mode} threshold={stats['threshold']:.5f}")
+                   label=f"{mode} threshold={stats['threshold']:.6f}")
 
     ax.set_xlabel("Time (days)")
-    ax.set_ylabel("ΔP_t")
+    ax.set_ylabel(col)
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
 
-    out = os.path.join(EGS_DIR, "egs_overlay_delta_P.png")
+    out = os.path.join(EGS_DIR, f"egs_overlay_{col}.png")
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    print(f"  Saved → {out}")
+    plt.close()
+
+
+def plot_combined(df_benign, df_adv, k=2.0):
+    """
+    2-row subplot — one row per signal (ΔP, ΔD).
+    Both baselines overlaid in each panel.
+    Main 'EGS Components' figure for the paper.
+    """
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=False)
+    fig.suptitle(
+        "EGS Components — Benign vs Adversarial",
+        fontsize=13, fontweight="bold"
+    )
+
+    for ax, col in zip(axes, ["delta_P", "delta_D"]):
+        for mode, df in [("benign", df_benign), ("adv", df_adv)]:
+            series = df[col].dropna()
+            x      = np.arange(len(series))
+            stats  = spike_stats(series, k)
+            color  = COLORS[mode]
+
+            ax.plot(x, series.values, color=color, linewidth=1.2,
+                    label=f"{mode.capitalize()} CV={stats['CV']:.3f}",
+                    alpha=0.85)
+
+            _, spikes = detect_spikes(series, k)
+            ax.scatter(x[spikes.values], series.values[spikes.values],
+                       color=color, marker="*", s=80, zorder=5)
+
+        ax.set_ylabel(SIGNAL_LABELS[col], fontsize=9)
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+
+    axes[-1].set_xlabel("Time (days)")
+    plt.tight_layout()
+
+    out = os.path.join(EGS_DIR, "egs_components_combined.png")
     plt.savefig(out, dpi=150, bbox_inches="tight")
     print(f"  Saved → {out}")
     plt.close()
@@ -142,35 +194,40 @@ def run_egs_spike_detection(k: float = 2.0):
     df_benign = pd.read_csv(benign_path)
     df_adv    = pd.read_csv(adv_path)
 
-    print("\n" + "=" * 55)
-    print(f"  EGS SPIKE DETECTION — ΔP  (k={k})")
-    print("=" * 55)
+    print("\n" + "=" * 60)
+    print(f"  EGS SPIKE DETECTION  (k={k})")
+    print("=" * 60)
 
     summary_rows = []
-    for mode, df in [("benign", df_benign), ("adv", df_adv)]:
-        series = df["delta_P"].dropna()
-        stats  = spike_stats(series, k)
-        print(
-            f"  [{mode:8s}] threshold={stats['threshold']:.5f}  "
-            f"spikes={stats['spike_count']}  "
-            f"rate={stats['spike_rate']:.1%}  "
-            f"mean_mag={stats['mean_spike_mag']:.5f}  "
-            f"CV={stats['CV']:.3f}"
-        )
-        summary_rows.append({"signal": "delta_P", "mode": mode, **stats})
 
-    plot_stacked(df_benign, df_adv, k=k)
-    plot_overlay(df_benign, df_adv, k=k)
+    for col in ["delta_P", "delta_D"]:
+        print(f"\n  ── {col} ──")
+        for mode, df in [("benign", df_benign), ("adv", df_adv)]:
+            series = df[col].dropna()
+            stats  = spike_stats(series, k)
+            print(
+                f"    [{mode:8s}] threshold={stats['threshold']:.6f}  "
+                f"spikes={stats['spike_count']}  "
+                f"rate={stats['spike_rate']:.1%}  "
+                f"mean_mag={stats['mean_spike_mag']:.6f}  "
+                f"CV={stats['CV']:.3f}"
+            )
+            summary_rows.append({"signal": col, "mode": mode, **stats})
 
-    summary_df = pd.DataFrame(summary_rows)
+        plot_stacked(df_benign, df_adv, col, k=k)
+        plot_overlay(df_benign, df_adv, col, k=k)
+
+    plot_combined(df_benign, df_adv, k=k)
+
+    summary_df   = pd.DataFrame(summary_rows)
     summary_path = os.path.join(EGS_DIR, "egs_spike_summary.csv")
     summary_df.to_csv(summary_path, index=False)
     print(f"\n  Summary → {summary_path}")
 
-    print("\n" + "=" * 55)
+    print("\n" + "=" * 60)
     print("  DONE")
     print(f"  Plots → {EGS_DIR}")
-    print("=" * 55)
+    print("=" * 60)
 
     return summary_df
 

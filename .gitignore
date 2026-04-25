@@ -56,3 +56,6 @@ graphs/sci_results/plots/*.png
 *.tmp
 *.bak
 *.swp
+
+graphs/egs_results/*.csv
+graphs/egs_results/*.png

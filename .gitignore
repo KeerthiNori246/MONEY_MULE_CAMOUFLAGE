@@ -59,3 +59,23 @@ graphs/sci_results/plots/*.png
 
 graphs/egs_results/*.csv
 graphs/egs_results/*.png
+
+# Coupling & Independence Analysis baselines
+graphs/baselines/struct_drift_summary.csv
+graphs/baselines/feature_drift_summary.csv
+
+# Structure drift embeddings (subfolders not caught by current pattern)
+graphs/embeddings/struct_drift_low/*.npy
+graphs/embeddings/struct_drift_low/*.pkl
+graphs/embeddings/struct_drift_medium/*.npy
+graphs/embeddings/struct_drift_medium/*.pkl
+graphs/embeddings/struct_drift_high/*.npy
+graphs/embeddings/struct_drift_high/*.pkl
+
+# Feature drift embeddings
+graphs/embeddings/feature_drift_low/*.npy
+graphs/embeddings/feature_drift_low/*.pkl
+graphs/embeddings/feature_drift_medium/*.npy
+graphs/embeddings/feature_drift_medium/*.pkl
+graphs/embeddings/feature_drift_high/*.npy
+graphs/embeddings/feature_drift_high/*.pkl

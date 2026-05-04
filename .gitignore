@@ -79,3 +79,14 @@ graphs/embeddings/feature_drift_medium/*.npy
 graphs/embeddings/feature_drift_medium/*.pkl
 graphs/embeddings/feature_drift_high/*.npy
 graphs/embeddings/feature_drift_high/*.pkl
+
+# Combined drift baselines
+graphs/baselines/combined_drift_summary.csv
+
+# Combined drift embeddings
+graphs/embeddings/combined_drift_low/*.npy
+graphs/embeddings/combined_drift_low/*.pkl
+graphs/embeddings/combined_drift_medium/*.npy
+graphs/embeddings/combined_drift_medium/*.pkl
+graphs/embeddings/combined_drift_high/*.npy
+graphs/embeddings/combined_drift_high/*.pkl

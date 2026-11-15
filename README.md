@@ -74,22 +74,11 @@ with four directed edge types:
 The experiments examine benign and adversarial drift, alongside three
 controlled perturbation conditions:
 
-  -----------------------------------------------------------------------
-  Perturbation                        Description
-  ----------------------------------- -----------------------------------
-  Structure-only                      Transaction-to-merchant edges are
-                                      rewired while node features remain
-                                      frozen.
-
-  Feature-only                        Transaction amounts are perturbed
-                                      using multiplicative Gaussian noise
-                                      while graph topology remains
-                                      unchanged.
-
-  Combined                            Structural rewiring and feature
-                                      perturbations are applied
-                                      simultaneously.
-  -----------------------------------------------------------------------
+| Perturbation | Description |
+|---|---|
+| **Structure-only** | Rewires transaction-to-merchant edges while keeping node features unchanged. |
+| **Feature-only** | Perturbs transaction amounts using multiplicative Gaussian noise while keeping graph topology unchanged. |
+| **Combined** | Applies structural rewiring and feature perturbations simultaneously. |
 
 Each perturbation is evaluated at low (5%), medium (15%), and high (30%)
 intensity.
